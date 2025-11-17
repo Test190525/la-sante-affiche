@@ -400,65 +400,82 @@
   }
 })();
 
-// ==================== PDF CAROUSEL AVEC PRÉVISUALISATION ====================
+// ==================== GRID CAROUSEL - 3 images visibles ====================//
 (function() {
     'use strict';
     
-    class PDFCarousel {
-        constructor(carouselElement) {
-            this.carousel = carouselElement;
-            this.track = this.carousel.querySelector('.carousel-track');
-            this.slides = Array.from(this.carousel.querySelectorAll('.carousel-slide'));
-            this.prevBtn = this.carousel.querySelector('.carousel-nav.prev');
-            this.nextBtn = this.carousel.querySelector('.carousel-nav.next');
-            this.dotsContainer = this.carousel.querySelector('.carousel-dots');
-            this.pauseBtn = this.carousel.querySelector('.carousel-pause');
+    class GridCarousel {
+        constructor(containerSelector) {
+            this.container = document.querySelector(containerSelector);
+            if (!this.container) return;
             
-            this.currentIndex = 0;
+            this.track = this.container.querySelector('.carousel-track');
+            this.slides = Array.from(this.container.querySelectorAll('.carousel-slide'));
+            this.prevBtn = this.container.querySelector('.carousel-nav.prev');
+            this.nextBtn = this.container.querySelector('.carousel-nav.next');
+            this.dotsContainer = this.container.querySelector('.carousel-dots');
+            
+            this.currentIndex = 1; // Commencer avec la slide du milieu active
             this.autoScrollInterval = null;
-            this.isPaused = false;
-            this.autoScrollDelay = 5000; // 5 secondes
+            this.autoScrollDelay = 4000; // 4 secondes
+            this.visibleSlides = 3;
             
             this.init();
         }
         
         init() {
+            if (this.slides.length === 0) return;
+            
             // Créer les dots
             this.createDots();
             
             // Event listeners
-            this.prevBtn.addEventListener('click', () => this.prev());
-            this.nextBtn.addEventListener('click', () => this.next());
-            this.pauseBtn.addEventListener('click', () => this.togglePause());
+            if (this.prevBtn) this.prevBtn.addEventListener('click', () => this.prev());
+            if (this.nextBtn) this.nextBtn.addEventListener('click', () => this.next());
             
             // Keyboard navigation
-            this.carousel.addEventListener('keydown', (e) => {
+            this.container.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowLeft') this.prev();
                 if (e.key === 'ArrowRight') this.next();
             });
             
             // Pause on hover
-            this.carousel.addEventListener('mouseenter', () => this.pauseAutoScroll());
-            this.carousel.addEventListener('mouseleave', () => {
-                if (!this.isPaused) this.startAutoScroll();
-            });
+            this.container.addEventListener('mouseenter', () => this.pauseAutoScroll());
+            this.container.addEventListener('mouseleave', () => this.startAutoScroll());
             
             // Touch swipe support
             this.addTouchSupport();
             
-            // Démarrer l'auto-scroll
-            this.startAutoScroll();
+            // Responsive handler
+            window.addEventListener('resize', () => this.handleResize());
             
-            // Initial display
-            this.updateCarousel();
+            // Initial setup
+            setTimeout(() => {
+                this.handleResize();
+                this.updateCarousel();
+                this.startAutoScroll();
+            }, 100);
+        }
+        
+        handleResize() {
+            const width = window.innerWidth;
+            if (width < 600) {
+                this.visibleSlides = 1;
+            } else if (width < 1024) {
+                this.visibleSlides = 2;
+            } else {
+                this.visibleSlides = 3;
+            }
         }
         
         createDots() {
+            if (!this.dotsContainer) return;
+            
+            this.dotsContainer.innerHTML = '';
             this.slides.forEach((_, index) => {
                 const dot = document.createElement('button');
                 dot.className = 'carousel-dot';
                 dot.setAttribute('aria-label', `Aller à la diapositive ${index + 1}`);
-                if (index === 0) dot.classList.add('active');
                 
                 dot.addEventListener('click', () => {
                     this.goToSlide(index);
@@ -467,13 +484,26 @@
                 
                 this.dotsContainer.appendChild(dot);
             });
+            
+            this.updateDots();
+        }
+        
+        updateDots() {
+            if (!this.dotsContainer) return;
+            
+            const dots = this.dotsContainer.querySelectorAll('.carousel-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === this.currentIndex);
+            });
         }
         
         goToSlide(index) {
+            const totalSlides = this.slides.length;
+            
             // Gestion circulaire
             if (index < 0) {
-                this.currentIndex = this.slides.length - 1;
-            } else if (index >= this.slides.length) {
+                this.currentIndex = totalSlides - 1;
+            } else if (index >= totalSlides) {
                 this.currentIndex = 0;
             } else {
                 this.currentIndex = index;
@@ -483,36 +513,31 @@
         }
         
         updateCarousel() {
-            // Déplacer le track
-            const offset = -this.currentIndex * 100;
+            const totalSlides = this.slides.length;
+            
+            // Calculer le décalage pour centrer la slide active
+            let offset;
+            
+            if (this.visibleSlides === 1) {
+                // En mode mobile, centrer complètement la slide active
+                offset = -this.currentIndex * 100;
+            } else if (this.visibleSlides === 2) {
+                // En mode tablette, ajuster pour avoir la slide active à gauche ou centrée
+                offset = -(this.currentIndex * 50) + 25;
+            } else {
+                // En mode desktop, centrer la slide active (au milieu des 3)
+                offset = -(this.currentIndex * (100 / 3)) + (100 / 3);
+            }
+            
             this.track.style.transform = `translateX(${offset}%)`;
             
-            // Mettre à jour les dots
-            const dots = this.dotsContainer.querySelectorAll('.carousel-dot');
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === this.currentIndex);
+            // Mettre à jour les classes actives
+            this.slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === this.currentIndex);
             });
             
-            // Mettre à jour les classes actives pour les slides et les prévisualisations
-            this.slides.forEach((slide, index) => {
-                slide.classList.remove('active', 'prev', 'next');
-                
-                if (index === this.currentIndex) {
-                    slide.classList.add('active');
-                } else if (index === this.getPrevIndex()) {
-                    slide.classList.add('prev');
-                } else if (index === this.getNextIndex()) {
-                    slide.classList.add('next');
-                }
-            });
-        }
-        
-        getPrevIndex() {
-            return this.currentIndex === 0 ? this.slides.length - 1 : this.currentIndex - 1;
-        }
-        
-        getNextIndex() {
-            return this.currentIndex === this.slides.length - 1 ? 0 : this.currentIndex + 1;
+            // Mettre à jour les dots
+            this.updateDots();
         }
         
         prev() {
@@ -542,41 +567,25 @@
         
         resetAutoScroll() {
             this.pauseAutoScroll();
-            if (!this.isPaused) {
-                this.startAutoScroll();
-            }
-        }
-        
-        togglePause() {
-            this.isPaused = !this.isPaused;
-            
-            if (this.isPaused) {
-                this.pauseAutoScroll();
-                this.pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                this.pauseBtn.setAttribute('aria-label', 'Reprendre le défilement automatique');
-            } else {
-                this.startAutoScroll();
-                this.pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                this.pauseBtn.setAttribute('aria-label', 'Mettre en pause le défilement automatique');
-            }
+            this.startAutoScroll();
         }
         
         addTouchSupport() {
             let startX = 0;
             let endX = 0;
             
-            this.carousel.addEventListener('touchstart', (e) => {
+            this.container.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
             });
             
-            this.carousel.addEventListener('touchmove', (e) => {
+            this.container.addEventListener('touchmove', (e) => {
                 endX = e.touches[0].clientX;
             });
             
-            this.carousel.addEventListener('touchend', () => {
+            this.container.addEventListener('touchend', () => {
                 const diff = startX - endX;
                 
-                if (Math.abs(diff) > 50) { // Seuil minimum de 50px
+                if (Math.abs(diff) > 50) {
                     if (diff > 0) {
                         this.next();
                     } else {
@@ -592,18 +601,21 @@
         window.open(url, '_blank', 'noopener,noreferrer');
     };
     
-    // Initialiser tous les carousels
-    function initAllCarousels() {
-        const carousels = document.querySelectorAll('.pdf-carousel');
-        carousels.forEach(carousel => {
-            new PDFCarousel(carousel);
+    // Initialiser tous les carrousels avec la classe .grid-carousel
+    function initCarousels() {
+        const carousels = document.querySelectorAll('.grid-carousel');
+        carousels.forEach((carousel, index) => {
+            // Ajouter un ID unique si nécessaire
+            if (!carousel.id) {
+                carousel.id = `grid-carousel-${index}`;
+            }
+            new GridCarousel(`#${carousel.id}`);
         });
     }
     
-    // Lancer au chargement
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAllCarousels);
+        document.addEventListener('DOMContentLoaded', initCarousels);
     } else {
-        initAllCarousels();
+        initCarousels();
     }
 })();

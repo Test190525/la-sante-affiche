@@ -351,3 +351,12 @@ Menu, langue, stats, nav sticky/hide-on-scroll, timeline
     });
   }
 })();
+
+// Rendre les iframes cliquables
+document.querySelectorAll('.pdf-grid a, .poster a').forEach(link => {
+    link.addEventListener('click', function(e) {
+        if (e.target.tagName === 'IFRAME') {
+            window.open(this.href, '_blank');
+        }
+    });
+});

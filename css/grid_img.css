@@ -53,7 +53,7 @@
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 20px;
     z-index: 10;
     transition: background 0.3s ease;
 }
@@ -105,5 +105,265 @@
     .pdf-grid-container {
         padding: 1rem 0.5rem;
         margin: 1rem 0;
+    }
+}
+
+/* grid responsive images jpeg/png */
+/* ==================================
+   GRILLE D'IMAGES STYLE FLEXBOX
+   ================================== */
+
+/* Conteneur principal de la grille d'images */
+.image-grid-container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Ligne de la grille avec flexbox */
+.image-grid-row {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 4px;
+    gap: 0;
+}
+
+/* Colonnes - 4 colonnes par défaut */
+.image-grid-column {
+    flex: 25%;
+    max-width: 25%;
+    padding: 0 4px;
+}
+
+/* Item individuel */
+.image-item {
+    position: relative;
+    background: #fff;
+    overflow: hidden;
+    margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.image-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Images de base */
+.image-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Format Portrait (vertical) */
+.image-item.portrait img {
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+}
+
+/* Format Paysage (horizontal) */
+.image-item.landscape img {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+/* Format Carré */
+.image-item.square img {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+
+/* Si pas de classe spécifiée, l'image garde ses proportions naturelles */
+.image-item:not(.portrait):not(.landscape):not(.square) img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Overlay au survol */
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-item:hover .image-overlay {
+    opacity: 1;
+}
+
+/* Bouton d'ouverture */
+.image-open-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--pantone-293, #007BBF);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.image-item:hover .image-open-btn {
+    opacity: 1;
+}
+
+.image-open-btn:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+/* ==================================
+   RESPONSIVE
+   ================================== */
+
+/* Tablettes - 3 colonnes */
+@media screen and (max-width: 1024px) {
+    .image-grid-column {
+        flex: 33.33%;
+        max-width: 33.33%;
+    }
+}
+
+/* Tablettes petites - 2 colonnes */
+@media screen and (max-width: 768px) {
+    .image-grid-column {
+        flex: 50%;
+        max-width: 50%;
+    }
+}
+
+/* Mobile - 1 colonne */
+@media screen and (max-width: 600px) {
+    .image-grid-column {
+        flex: 100%;
+        max-width: 100%;
+    }
+    
+    .image-grid-container {
+        padding: 0 0.5rem;
+    }
+    
+    .image-open-btn {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ==================================
+   LIGHTBOX
+   ================================== */
+
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox.active {
+    display: flex;
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    animation: zoomIn 0.3s ease;
+    border-radius: 8px;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 10000;
+}
+
+.lightbox-close:hover {
+    color: #ccc;
+}
+
+/* Navigation lightbox */
+.lightbox-prev,
+.lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
+    padding: 20px;
+    user-select: none;
+    transition: color 0.3s ease;
+}
+
+.lightbox-prev {
+    left: 20px;
+}
+
+.lightbox-next {
+    right: 20px;
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    color: #ccc;
+}
+
+/* Mobile lightbox */
+@media screen and (max-width: 768px) {
+    .lightbox-close {
+        font-size: 30px;
+        top: 10px;
+        right: 15px;
+    }
+    
+    .lightbox-prev,
+    .lightbox-next {
+        font-size: 30px;
+        padding: 10px;
+    }
+    
+    .lightbox-content {
+        max-width: 95%;
+        max-height: 95%;
     }
 }

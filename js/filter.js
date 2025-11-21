@@ -22,7 +22,6 @@ const pdfList = [
     { id: "pdf020", title: "Live Healthy Stay Healthy - Pacific guidelines for healthy living", url: "https://www.spc.int/digitallibrary/get/ozsjt", category: "Healthy Living/ Hygiène de vie", decade: "2010s", theme: "healthy" },
     { id: "pdf021", title: "Look fit, be healthy_ENG", url: "https://www.spc.int/digitallibrary/get/qy2xn", category: "Healthy Living/ Hygiène de vie", decade: "2010s", theme: "healthy" },
     { id: "pdf022", title: "Meeting_house_of_the_Pacific", url: "https://www.spc.int/digitallibrary/get/qzhad", category: "Healthy Living/ Hygiène de vie", decade: "2010s", theme: "healthy" },
-    { id: "pdf023", title: "A child when we are ready", url: "https://www.spc.int/digitallibrary/get/meazi", category: "Family and health /La famille en santé", decade: "2010s", theme: "family" },
     { id: "pdf024", title: "Aron tararuaakin te aoraki ae te tioka", url: "https://www.spc.int/digitallibrary/get/7e5oz", category: "Family and health /La famille en santé", decade: "2010s", theme: "family" },
     { id: "pdf025", title: "Te amwarake ao te aoraki ae te tioka", url: "https://www.spc.int/digitallibrary/get/isq4t", category: "Family and health /La famille en santé", decade: "2010s", theme: "family" },
     { id: "pdf026", title: "Aron tutuoan raoiroin te aoraki ae te tioka", url: "https://www.spc.int/digitallibrary/get/divxc", category: "Family and health /La famille en santé", decade: "2010s", theme: "family" },
